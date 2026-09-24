@@ -109,17 +109,14 @@ classDiagram
     %% DOMAIN RELATIONSHIPS
     %% =====================================================
 
-    User 1 -- 0..1 Employee  profile
-    Employee 1 -- 0.. OnboardingProcess  has
-    OnboardingProcess 1 -- 1.. OnboardingStage  contains
-    OnboardingStage 1 -- 0.. Task  contains
-
-    User 1 -- 0.. Task  assigned
-    User 1 -- 0.. Notification  receives
-
-    Employee 1 -- 0.. Document  owns
-    Task 1 -- 0.. Document  attachments
-
+    User "1" --> "0..1" Employee : profile
+    Employee "1" --> "0..*" OnboardingProcess : has
+    OnboardingProcess "1" *-- "1..*" OnboardingStage : contains
+    OnboardingStage "1" *-- "0..*" Task : contains
+    User "1" --> "0..*" Task : assigned
+    User "1" --> "0..*" Notification : receives
+    Employee "1" --> "0..*" Document : owns
+    Task "1" --> "0..*" Document : attachments
 
     %% =====================================================
     %% APPLICATION SERVICES
@@ -170,27 +167,25 @@ classDiagram
         +MarkAsRead(notificationID UUID)
     }
 
-
     %% =====================================================
-    %% SERVICES - DOMAIN
+    %% SERVICES -> DOMAIN
     %% =====================================================
 
-    AuthService -- User
-    EmployeeService -- Employee
-    EmployeeService -- Document
-    OnboardingService -- OnboardingProcess
-    OnboardingService -- OnboardingStage
-    OnboardingService -- Task
-    TaskService -- Task
-    NotificationService -- Notification
-
+    AuthService --> User
+    EmployeeService --> Employee
+    EmployeeService --> Document
+    OnboardingService --> OnboardingProcess
+    OnboardingService --> OnboardingStage
+    OnboardingService --> Task
+    TaskService --> Task
+    NotificationService --> Notification
 
     %% =====================================================
     %% REPOSITORY INTERFACES
     %% =====================================================
 
     class UserRepository {
-        interface
+        <<interface>>
         +Create(user User)
         +GetByID(id UUID)
         +GetByEmail(email string)
@@ -198,7 +193,7 @@ classDiagram
     }
 
     class EmployeeRepository {
-        interface
+        <<interface>>
         +Create(employee Employee)
         +GetByID(id UUID)
         +Update(employee Employee)
@@ -206,7 +201,7 @@ classDiagram
     }
 
     class OnboardingRepository {
-        interface
+        <<interface>>
         +Create(process OnboardingProcess)
         +GetByID(id UUID)
         +Update(process OnboardingProcess)
@@ -214,7 +209,7 @@ classDiagram
     }
 
     class StageRepository {
-        interface
+        <<interface>>
         +Create(stage OnboardingStage)
         +GetByID(id UUID)
         +Update(stage OnboardingStage)
@@ -222,7 +217,7 @@ classDiagram
     }
 
     class TaskRepository {
-        interface
+        <<interface>>
         +Create(task Task)
         +GetByID(id UUID)
         +Update(task Task)
@@ -230,7 +225,7 @@ classDiagram
     }
 
     class NotificationRepository {
-        interface
+        <<interface>>
         +Create(notification Notification)
         +GetByID(id UUID)
         +Update(notification Notification)
@@ -238,118 +233,114 @@ classDiagram
     }
 
     %% =====================================================
-    %% SERVICES - REPOSITORIES
+    %% SERVICES -> REPOSITORIES
     %% =====================================================
 
-    AuthService -- UserRepository
-    EmployeeService -- EmployeeRepository
-    OnboardingService -- OnboardingRepository
-    OnboardingService -- StageRepository
-    OnboardingService -- TaskRepository
-    TaskService -- TaskRepository
-    NotificationService -- NotificationRepository
-
+    AuthService --> UserRepository
+    EmployeeService --> EmployeeRepository
+    OnboardingService --> OnboardingRepository
+    OnboardingService --> StageRepository
+    OnboardingService --> TaskRepository
+    TaskService --> TaskRepository
+    NotificationService --> NotificationRepository
 
     %% =====================================================
     %% DATABASE REPOSITORY IMPLEMENTATIONS
     %% =====================================================
 
     class SQLUserRepository {
-        repository
+        <<repository>>
         -DB db
     }
 
     class SQLEmployeeRepository {
-        repository
+        <<repository>>
         -DB db
     }
 
     class SQLOnboardingRepository {
-        repository
+        <<repository>>
         -DB db
     }
 
     class SQLStageRepository {
-        repository
+        <<repository>>
         -DB db
     }
 
     class SQLTaskRepository {
-        repository
+        <<repository>>
         -DB db
     }
 
     class SQLNotificationRepository {
-        repository
+        <<repository>>
         -DB db
     }
 
-    SQLUserRepository .. UserRepository
-    SQLEmployeeRepository .. EmployeeRepository
-    SQLOnboardingRepository .. OnboardingRepository
-    SQLStageRepository .. StageRepository
-    SQLTaskRepository .. TaskRepository
-    SQLNotificationRepository .. NotificationRepository
-
+    SQLUserRepository ..|> UserRepository
+    SQLEmployeeRepository ..|> EmployeeRepository
+    SQLOnboardingRepository ..|> OnboardingRepository
+    SQLStageRepository ..|> StageRepository
+    SQLTaskRepository ..|> TaskRepository
+    SQLNotificationRepository ..|> NotificationRepository
 
     %% =====================================================
     %% DATABASE ABSTRACTION
     %% =====================================================
 
     class DB {
-        interface
+        <<interface>>
         +Query()
         +QueryRow()
         +Exec()
         +Begin()
     }
 
-    SQLUserRepository -- DB
-    SQLEmployeeRepository -- DB
-    SQLOnboardingRepository -- DB
-    SQLStageRepository -- DB
-    SQLTaskRepository -- DB
-    SQLNotificationRepository -- DB
-
+    SQLUserRepository --> DB
+    SQLEmployeeRepository --> DB
+    SQLOnboardingRepository --> DB
+    SQLStageRepository --> DB
+    SQLTaskRepository --> DB
+    SQLNotificationRepository --> DB
 
     %% =====================================================
     %% EXTERNAL INTEGRATIONS
     %% =====================================================
 
     class EmailService {
-        interface
+        <<interface>>
         +SendEmail(to string, subject string, body string)
     }
 
     class SlackService {
-        interface
+        <<interface>>
         +SendMessage(channel string, message string)
     }
 
     class FileStorageService {
-        interface
+        <<interface>>
         +Upload(file File, path string)
         +GetURL(storageKey string)
     }
 
     class HRSystemClient {
-        interface
+        <<interface>>
         +CreateEmployee(employee Employee)
         +UpdateEmployee(employee Employee)
     }
 
-    NotificationService -- EmailService
-    NotificationService -- SlackService
-    EmployeeService -- HRSystemClient
-    EmployeeService -- FileStorageService
-
+    NotificationService --> EmailService
+    NotificationService --> SlackService
+    EmployeeService --> HRSystemClient
+    EmployeeService --> FileStorageService
 
     %% =====================================================
     %% DATABASE
     %% =====================================================
 
     class RelationalDatabase {
-        database
+        <<database>>
         users
         employees
         onboarding_processes
@@ -359,8 +350,7 @@ classDiagram
         documents
     }
 
-    DB -- RelationalDatabase
-
+    DB --> RelationalDatabase
 
     %% =====================================================
     %% DTO
@@ -391,17 +381,16 @@ classDiagram
         +UUID AssigneeID
     }
 
-    EmployeeService .. CreateEmployeeDTO
-    EmployeeService .. UpdateEmployeeDTO
-    TaskService .. CreateTaskDTO
-
+    EmployeeService ..> CreateEmployeeDTO
+    EmployeeService ..> UpdateEmployeeDTO
+    TaskService ..> CreateTaskDTO
 
     %% =====================================================
     %% ENUMS
     %% =====================================================
 
     class UserRole {
-        enumeration
+        <<enumeration>>
         EMPLOYEE
         MANAGER
         HR
@@ -409,14 +398,14 @@ classDiagram
     }
 
     class EmployeeStatus {
-        enumeration
+        <<enumeration>>
         ACTIVE
         PROBATION
         TERMINATED
     }
 
     class OnboardingStatus {
-        enumeration
+        <<enumeration>>
         NEW
         IN_PROGRESS
         COMPLETED
@@ -424,7 +413,7 @@ classDiagram
     }
 
     class StageStatus {
-        enumeration
+        <<enumeration>>
         PENDING
         IN_PROGRESS
         COMPLETED
@@ -432,7 +421,7 @@ classDiagram
     }
 
     class TaskStatus {
-        enumeration
+        <<enumeration>>
         PENDING
         IN_PROGRESS
         COMPLETED
@@ -440,7 +429,7 @@ classDiagram
     }
 
     class TaskType {
-        enumeration
+        <<enumeration>>
         DOCUMENT
         ACCESS
         TRAINING
@@ -449,7 +438,7 @@ classDiagram
     }
 
     class NotificationType {
-        enumeration
+        <<enumeration>>
         INFO
         REMINDER
         TASK
@@ -457,19 +446,19 @@ classDiagram
     }
 
     class NotificationChannel {
-        enumeration
+        <<enumeration>>
         EMAIL
         SLACK
         IN_APP
     }
 
-    User -- UserRole
-    Employee -- EmployeeStatus
-    OnboardingProcess -- OnboardingStatus
-    OnboardingStage -- StageStatus
-    Task -- TaskStatus
-    Task -- TaskType
-    Notification -- NotificationType
-    Notification -- NotificationChannel
+    User --> UserRole
+    Employee --> EmployeeStatus
+    OnboardingProcess --> OnboardingStatus
+    OnboardingStage --> StageStatus
+    Task --> TaskStatus
+    Task --> TaskType
+    Notification --> NotificationType
+    Notification --> NotificationChannel
 
 ```
